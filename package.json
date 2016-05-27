@@ -1,0 +1,17 @@
+{
+  "name": "gmp-admin",
+  "version": "1.0.0",
+  "description": "GetMyParking Admin Panel",
+  "main": "index.js",
+  "scripts": {
+    "serve-admin": "webpack-dev-server --progress --colors --port 80 --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "arpan",
+  "license": "MIT",
+  "dependencies": {
+    "ng-admin": "^1.0.0-alpha2",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
