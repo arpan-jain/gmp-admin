@@ -1,0 +1,79 @@
+<!--
+Author: W3layouts
+Author URL: https://w3layouts.com/entrar-shadow-flat-form-template/
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GetMyParking Login</title>
+    <meta charset="utf-8">
+    <link href="css/login.css" rel='stylesheet' type='text/css' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:600italic,400,300,600,700' type='text/css'>
+</head>
+<body>
+<div class="main">
+    <div class="login-form">
+        <h1>Login</h1>
+        <div class="head">
+            <img src="images/user.png" alt=""/>
+        </div>
+        <form onsubmit="return login()">
+            <input type="text" class="text" id="email" value="email" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'email';}" >
+            <input type="password" value="Password" id="password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
+            <div class="submit">
+                <input type="submit" value="Log In" >
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/x-javascript">
+    window.addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+    function hideURLbar(){
+        window.scrollTo(0,1);
+    }
+
+    function GetAuth(email,password) {
+        //console.log("Getting the AuthToken");
+        var Httpreq = new XMLHttpRequest();
+        var body={
+            "email":email,
+            "password":password
+        };
+        body=JSON.stringify(body);
+        //console.log("after Json Stringify ",body);
+        Httpreq.open("POST", 'http://dev.api.getmyparking.com:5000/api/v1/UserConsumers/login', false);
+        //console.log("Request body",body);
+        Httpreq.setRequestHeader("Content-Type","application/json");
+        //console.log("Sending the request token");
+        Httpreq.send(body);
+        var result=Httpreq.responseText;
+        //console.log("HTTP Response", result);
+        return result;
+    };
+
+    function login(e) {
+        if (e) {
+            e.prevenDefault();
+        }
+        var email= document.getElementById('email').value;
+        var password= document.getElementById('password').value;
+        var Result = JSON.parse(GetAuth(email,password));
+        var authToken = Result.auth;
+
+        if(authToken){
+            //console.log("getting the authToken",authToken);
+            window.sessionStorage.setItem('authToken', authToken);
+            window.location.href = "./index.html";
+            return false;
+        }else{
+            alert("Invalid Login Credentials. Please Retry");
+        }
+
+
+    }
+</script>
+</body>
+</html>
