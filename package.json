@@ -4,7 +4,7 @@
   "description": "GetMyParking Admin Panel",
   "main": "index.js",
   "scripts": {
-    "serve-admin": "webpack-dev-server --progress --colors --port 80 --watch",
+    "serve-admin": "webpack-dev-server --progress --colors --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "arpan",
