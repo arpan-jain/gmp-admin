@@ -2,15 +2,38 @@
  * Created by arpan on 26/05/16.
  */
 
+
+//Event Type in Receipt Content
+var event_type=[
+    {value:'CHECKED_IN', label:'CHECKED_IN'},
+    {value:'checked_out', label:'checked_out'},
+    {value:'PASS_CREATION', label:'PASS_CREATION'},
+    {value:'PASS_RENEW', label:'PASS_RENEW'},
+    {value:'PASS_PAID', label:'PASS_PAID'},
+    {value:'BOOKING_CREATE', label:'BOOKING_CREATE'}
+];
+
+var style_masters=[
+    {value:'Bold', label:'Bold'},
+    {value:'Feed', label:'Feed'},
+    {value:'Header', label:'Header'},
+    {value:'negative_bold', label:'negative_bold'},
+    {value:'negative_header', label:'negative_header'},
+    {value:'Negative_text', label:'Negative_text'},
+    {value:'text', label:'text'},
+    {value:'underline_bold', label:'underline_bold'},
+    {value:'underline_header', label:'underline_header'},
+    {value:'underline_text', label:'underline_text'}
+];
+
 var myApp = angular.module('myApp', ['ng-admin']);
 myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // create an admin application
     var admin = nga.application('GetMyParking Admin')
         .baseApiUrl('http://dev.api.getmyparking.com:5000/api/v1/'); // main API endpoint
-    // create a user entity
-    // the API endpoint for this entity will be 'http://jsonplaceholder.typicode.com/users/:id
 
-    //Companies Entity
+
+
 
     // add entities to admin app
     admin.addEntity(nga.entity('Companies'));
@@ -21,6 +44,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     admin.addEntity(nga.entity('PriceGrids'));
     admin.addEntity(nga.entity('ReceiptContents'));
     admin.addEntity(nga.entity('FocReasons'));
+    admin.addEntity(nga.entity('ParkingPassMasters'));
 
 
 
@@ -32,8 +56,12 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     var priceGrids = admin.getEntity('PriceGrids');
     var receiptContents = admin.getEntity('ReceiptContents');
     var focReasons = admin.getEntity('FocReasons').identifier(nga.field('reasonTitle'));
+    var parkingPassMasters = admin.getEntity('ParkingPassMasters');
 
 
+    //Companies Entity
+
+    companies.readOnly();
     // set the fields of the user entity list view
     companies.listView().fields([
         // use the name as the link to the detail view - the edition view
@@ -55,7 +83,8 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
          .sortField('id')
          .sortDir('DESC')
          .listActions(['edit'])*/
-    ]);
+    ]).listActions(['edit']);
+
 
 
     companies.creationView().fields([
@@ -81,17 +110,14 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .listActions(['edit'])
     ]);
 
-    // add the user entity to the admin application
-    //admin.addEntity(companies);
+    companies.readOnly();
 
 
 
     //Parkings Entity
 
 
-    // set the fields of the user entity list view
     parkings.listView().fields([
-        // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
         nga.field('name'),
         nga.field('address'),
@@ -102,7 +128,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('landmark'),
         nga.field('createdBy'),
         nga.field('updatedBy')
-    ]);
+    ]).listActions(['edit']);
 
 
 
@@ -117,6 +143,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('createdBy'),
         nga.field('updatedBy')
     ]);
+
     // use the same fields for the editionView as for the creationView
     parkings.editionView().fields([
         parkings.creationView().fields(),
@@ -132,7 +159,9 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .listActions(['edit'])
     ]);
 
-    // add the user entity to the admin application
+
+    parkings.readOnly();
+
 
 
 
@@ -140,7 +169,6 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     //ParkingLots Entity
 
 
-    // set the fields of the user entity list view
     parkingLots.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
@@ -148,9 +176,6 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('openTime'),
         nga.field('closeTime'),
         nga.field('parkingId'),
-        nga.field('leftPhoto'),
-        nga.field('rightPhoto'),
-        nga.field('frontPhoto'),
         nga.field('parkingType'),
         nga.field('parkingOwner'),
         nga.field('collectionAt'),
@@ -160,7 +185,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('extraNotes'),
         nga.field('geoLocation.lat'),
         nga.field('geoLocation.lng')
-    ]);
+    ]).listActions(['edit']);
 
     parkingLots.creationView().fields([
         nga.field('name'),
@@ -194,15 +219,12 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .sortDir('DESC')
     ]);
 
-    // add the user entity to the admin application
-    //admin.addEntity(parkingLots);
-
+    parkingLots.readOnly();
 
 
     // ParkingSubLots Entity
 
 
-    // set the fields of the user entity list view
     parkingSubLots.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
@@ -222,7 +244,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('insidePhoto'),
         nga.field('lostTicketFee')
 
-    ]);
+    ]).listActions(['edit']);
 
     parkingSubLots.creationView().fields([
         nga.field('type'),
@@ -263,15 +285,14 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             ])
     ]);
 
-    // add the user entity to the admin application
-    // admin.addEntity(parkingSubLots);
+
+    parkingSubLots.readOnly();
 
 
 
     //PricingSlots Entity
 
 
-    // set the fields of the user entity list view
     pricingSlots.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
@@ -280,7 +301,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('endMinutesOfDay'),
         nga.field('parkingSubLotId'),
         nga.field('type')
-    ]);
+    ]).listActions(['edit']);
 
     pricingSlots.creationView().fields([
         nga.field('day'),
@@ -303,15 +324,14 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .sortDir('DESC')
     ]);
 
-    // add the user entity to the admin application
-    //admin.addEntity(pricingSlots);
+
+    pricingSlots.readOnly();
 
 
 
     //PriceGrids Entity
 
 
-    // set the fields of the user entity list view
     priceGrids.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
@@ -320,7 +340,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('duration'),
         nga.field('pricingId'),
         nga.field('sequenceNumber')
-    ]);
+    ]).listActions(['edit']);
 
     priceGrids.creationView().fields([
         nga.field('priceStructure'),
@@ -332,15 +352,13 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // use the same fields for the editionView as for the creationView
     priceGrids.editionView().fields(priceGrids.creationView().fields());
 
-    // add the user entity to the admin application
-    //  admin.addEntity(priceGrids);
 
+    priceGrids.readOnly();
 
 
     //ReceiptContents Entity
 
 
-    // set the fields of the user entity list view
     receiptContents.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('id').isDetailLink(true),
@@ -350,27 +368,30 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('parkingSubLotId'),
         nga.field('styleMasterTitle'),
         nga.field('parkingPassMasterId')
-    ]);
+    ]).listActions(['edit']);
 
     receiptContents.creationView().fields([
         nga.field('content'),
         nga.field('sequence'),
-        nga.field('eventType'),
+        nga.field('eventType','choice')
+            .choices(
+                event_type
+            ),
         nga.field('parkingSubLotId'),
-        nga.field('styleMasterTitle'),
+        nga.field('styleMasterTitle','choice')
+            .choices(
+                style_masters
+            ),
         nga.field('parkingPassMasterId')
     ]);
     // use the same fields for the editionView as for the creationView
     receiptContents.editionView().fields(receiptContents.creationView().fields());
 
-    // add the user entity to the admin application
-    //admin.addEntity(receiptContents);
 
+    receiptContents.readOnly();
 
     //FocReasons Entity
 
-
-    // set the fields of the user entity list view
     focReasons.listView().fields([
         // use the name as the link to the detail view - the edition view
         nga.field('reasonTitle').isDetailLink(true)
@@ -382,54 +403,43 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // use the same fields for the editionView as for the creationView
     focReasons.editionView().fields(focReasons.creationView().fields());
 
-    // add the user entity to the admin application
-    //admin.addEntity(focReasons);
+
+    focReasons.readOnly();
+
+
+    //Parking Pass Masters
+
+    parkingPassMasters.listView().fields([
+        nga.field('id').isDetailLink(true),
+        nga.field('name'),
+        nga.field('passType'),
+        nga.field('numbers'),
+        nga.field('vehicleType')
+    ]);
+
+
+    parkingPassMasters.showView().fields([
+        nga.field('id'),
+        nga.field('name'),
+        nga.field('passType'),
+        nga.field('numbers'),
+        nga.field('vehicleType'),
+        nga.field('isActive'),
+        nga.field('parkingId'),
+        nga.field('isName'),
+        nga.field('isMobileNumber'),
+        nga.field('isRegistrationNumber'),
+        nga.field('isRfid'),
+        nga.field('isPaid'),
+        nga.field('autoRenewal')
+    ]);
 
 
 
-
-    /*var post = nga.entity('posts');
-
-     post.listView()
-     .fields([
-     nga.field('id'),
-     nga.field('title'),
-     nga.field('userId', 'reference')
-     .targetEntity(user)
-     .targetField(nga.field('username'))
-     .label('User')
-     ]).filters([
-     nga.field('q')
-     .label('Full-Text')
-     .pinned(true),
-     nga.field('userId', 'reference')
-     .targetEntity(user)
-     .targetField(nga.field('username'))
-     .label('User')
-     ]);
-
-     post.showView().fields([
-     nga.field('title'),
-     nga.field('body', 'text'),
-     nga.field('userId', 'reference')
-     .targetEntity(user)
-     .targetField(nga.field('username'))
-     .label('User'),
-     nga.field('comments', 'referenced_list')
-     .targetEntity(nga.entity('comments'))
-     .targetReferenceField('postId')
-     .targetFields([
-     nga.field('email'),
-     nga.field('name')
-     ])
-     .sortField('id')
-     .sortDir('DESC'),
-     ]);
+    parkingPassMasters.readOnly();
 
 
-     post.readOnly();
 
-     admin.addEntity(post);*/
 
     nga.configure(admin);
 
