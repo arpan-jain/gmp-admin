@@ -100,7 +100,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('address'),
         nga.field('city'),
         nga.field('email','email'),
-        nga.field('contactNumber'),
+        nga.field('contactNumber','number'),
         nga.field('website'),
         nga.field('contracted')
     ]);
@@ -153,8 +153,8 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('name'),
         nga.field('address'),
         nga.field('city'),
-        nga.field('contactNumber'),
-        nga.field('companyId'),
+        nga.field('contactNumber','number'),
+        nga.field('companyId','number'),
         nga.field('category'),
         nga.field('landmark'),
         nga.field('createdBy'),
@@ -217,7 +217,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('name'),
         nga.field('openTime'),
         nga.field('closeTime'),
-        nga.field('parkingId'),
+        nga.field('parkingId','number'),
         nga.field('leftPhoto'),
         nga.field('rightPhoto'),
         nga.field('frontPhoto'),
@@ -281,11 +281,11 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
     parkingSubLots.creationView().fields([
         nga.field('type'),
-        nga.field('capacity'),
+        nga.field('capacity','number'),
         nga.field('taxiTime'),
         nga.field('autoCheckoutTime'),
-        nga.field('autoCheckoutCost'),
-        nga.field('parkingLotId'),
+        nga.field('autoCheckoutCost','number'),
+        nga.field('parkingLotId','number'),
         nga.field('bookingSecurity'),
         nga.field('convenienceFee'),
         nga.field('bookingNotes'),
@@ -294,7 +294,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('valetName'),
         nga.field('lastCheckinUpdateTime'),
         nga.field('insidePhoto'),
-        nga.field('lostTicketFee')
+        nga.field('lostTicketFee','number')
     ]);
     // use the same fields for the editionView as for the creationView
     parkingSubLots.editionView().fields([parkingSubLots.creationView().fields(),
@@ -345,9 +345,9 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
     pricingSlots.creationView().fields([
         nga.field('day'),
-        nga.field('startMinutesOfDay'),
-        nga.field('endMinutesOfDay'),
-        nga.field('parkingSubLotId'),
+        nga.field('startMinutesOfDay','number'),
+        nga.field('endMinutesOfDay','number'),
+        nga.field('parkingSubLotId','number'),
         nga.field('type')
     ]);
     // use the same fields for the editionView as for the creationView
@@ -390,10 +390,10 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
     priceGrids.creationView().fields([
         nga.field('priceStructure'),
-        nga.field('cost'),
-        nga.field('duration'),
-        nga.field('pricingId'),
-        nga.field('sequenceNumber')
+        nga.field('cost','number'),
+        nga.field('duration','number'),
+        nga.field('pricingId','number'),
+        nga.field('sequenceNumber','number')
     ]);
     // use the same fields for the editionView as for the creationView
     priceGrids.editionView().fields(priceGrids.creationView().fields());
@@ -427,7 +427,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('id').isDetailLink(true),
         nga.field('name'),
         nga.field('passType'),
-        nga.field('numbers'),
+        nga.field('numbers','number'),
         nga.field('vehicleType')
     ])
         .filters([
