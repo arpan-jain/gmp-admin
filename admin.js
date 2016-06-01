@@ -26,6 +26,51 @@ var style_masters=[
     {value:'underline_text', label:'underline_text'}
 ];
 
+var parking_category=[
+    {value:'Bus Station', label:'Bus Station'},
+    {value:'Corporate/Office', label:'Corporate/Office'},
+    {value:'Educational Institute', label:'Educational Institute'},
+    {value:'Event Venue', label:'Event Venue'},
+    {value:'Hotel', label:'Hotel'},
+    {value:'Mall', label:'Mall'},
+    {value:'Market', label:'Market'},
+    {value:'Metro Station', label:'Metro Station'},
+    {value:'Miscellaneous', label:'Miscellaneous'},
+    {value:'Residential', label:'Residential'},
+    {value:'Shopping Complex', label:'Shopping Complex'},
+    {value:'Train Station', label:'Train Station'}
+];
+
+var parking_type=[
+    {value:'Open Surface', label:'Open Surface'},
+    {value:'Multilevel', label:'Multilevel'},
+    {value:'Underground', label:'Underground'},
+    {value:'Others', label:'Others'},
+    {value:'Covered Surface', label:'Covered Surface'}
+];
+
+var plate_number_type=[
+    {value:'NUMERIC', label:'NUMERIC'},
+    {value:'NA', label:'NA'},
+    {value:'ALPHANUMERIC', label:'ALPHANUMERIC'},
+    {value:'OPTIONAL_NUMERIC', label:'OPTIONAL_NUMERIC'},
+    {value:'OPTIONAL', label:'OPTIONAL'},
+];
+
+var ticketing_system=[
+    {value:'Computer System', label:'Computer System'},
+    {value:'Manual Pre Printed', label:'Manual Pre Printed'},
+    {value:'Handheld System', label:'Handheld System'},
+    {value:'Ticketing System', label:'Ticketing System'},
+    {value:'Ticket Dispenser', label:'Ticket Dispenser'}
+];
+
+var pricing_slot_type=[
+    {value:'NORMAL', label:'NORMAL'},
+    {value:'NIGHT', label:'NIGHT'}
+];
+
+
 var baseURL= "http://dev.api.getmyparking.com:5000/api/v1/";
 
 var myApp = angular.module('myApp', ['ng-admin']);
@@ -48,6 +93,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     admin.addEntity(nga.entity('FocReasons'));
     admin.addEntity(nga.entity('ParkingPassMasters'));
     admin.addEntity(nga.entity('ReceiptContents'));
+    admin.addEntity(nga.entity('VehicleMasters'));
 
 
 
@@ -60,6 +106,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     var focReasons = admin.getEntity('FocReasons').identifier(nga.field('reasonTitle'));
     var parkingPassMasters = admin.getEntity('ParkingPassMasters');
     var receiptContents = admin.getEntity('ReceiptContents');
+    var vehicleMasters = admin.getEntity('VehicleMasters');
 
 
     //Companies Entity
@@ -74,17 +121,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('email'),
         nga.field('contactNumber'),
         nga.field('website'),
-        nga.field('contracted')
-        /*nga.field('parkings', 'referenced_list') // display list of related comments
-         .targetEntity(parkings)
-         .targetReferenceField('companyId')
-         .targetFields([
-         nga.field('id').label('ParkingId'),
-         nga.field('name').label('ParkingName')
-         ])/*
-         .sortField('id')
-         .sortDir('DESC')
-         .listActions(['edit'])*/
+        nga.field('contractor')
     ])
         .listActions(['edit'])
         .filters([
@@ -102,7 +139,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('email','email'),
         nga.field('contactNumber','number'),
         nga.field('website'),
-        nga.field('contracted')
+        nga.field('contractor')
     ]);
     // use the same fields for the editionView as for the creationView
     companies.editionView().fields([companies.creationView().fields(),
@@ -132,10 +169,12 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('city'),
         nga.field('contactNumber'),
         nga.field('companyId'),
+        nga.field('companyId','reference')
+            .targetEntity(companies)
+            .targetField(nga.field('name'))
+            .label('Company'),
         nga.field('category'),
         nga.field('landmark'),
-        nga.field('createdBy'),
-        nga.field('updatedBy')
     ])
         .listActions(['edit'])
         .filters([
@@ -154,11 +193,16 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('address'),
         nga.field('city'),
         nga.field('contactNumber','number'),
-        nga.field('companyId','number'),
-        nga.field('category'),
-        nga.field('landmark'),
-        nga.field('createdBy'),
-        nga.field('updatedBy')
+        nga.field('companyId','reference')
+            .targetEntity(companies)
+            .targetField(nga.field('name'))
+            .perPage(500)
+            .remoteComplete(true),
+        nga.field('category','choice')
+            .choices(
+                parking_category
+            ),
+        nga.field('landmark')
     ]);
 
     // use the same fields for the editionView as for the creationView
@@ -193,6 +237,10 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('openTime'),
         nga.field('closeTime'),
         nga.field('parkingId'),
+        nga.field('parkingId','reference')
+            .targetEntity(parkings)
+            .targetField(nga.field('name'))
+            .label('Parking'),
         nga.field('parkingType'),
         nga.field('parkingOwner'),
         nga.field('collectionAt'),
@@ -217,16 +265,26 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('name'),
         nga.field('openTime'),
         nga.field('closeTime'),
-        nga.field('parkingId','number'),
+        nga.field('parkingId','reference')
+            .targetEntity(parkings)
+            .targetField(nga.field('name'))
+            .perPage(1000)
+            .remoteComplete(true),
         nga.field('leftPhoto'),
         nga.field('rightPhoto'),
         nga.field('frontPhoto'),
-        nga.field('parkingType'),
+        nga.field('parkingType','choice')
+            .choices(
+                parking_type
+            ),
         nga.field('parkingOwner'),
         nga.field('collectionAt'),
         nga.field('avgParkingWeekday'),
         nga.field('avgParkingWeekend'),
-        nga.field('ticketingSystem'),
+        nga.field('ticketingSystem','choice')
+            .choices(
+                ticketing_system
+            ),
         nga.field('extraNotes'),
         nga.field('geoLocation.lat'),
         nga.field('geoLocation.lng')
@@ -261,6 +319,10 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('autoCheckoutTime'),
         nga.field('autoCheckoutCost'),
         nga.field('parkingLotId'),
+        nga.field('parkingLotId','reference')
+            .targetEntity(parkingLots)
+            .targetField(nga.field('name'))
+            .label('ParkingLot'),
         nga.field('bookingSecurity'),
         nga.field('convenienceFee'),
         nga.field('bookingNotes'),
@@ -280,16 +342,27 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         ]);
 
     parkingSubLots.creationView().fields([
-        nga.field('type'),
+        nga.field('type','reference')
+            .targetEntity(vehicleMasters)
+            .targetField(nga.field('vehicleType'))
+            .perPage(1000)
+            .remoteComplete(true),
         nga.field('capacity','number'),
         nga.field('taxiTime'),
         nga.field('autoCheckoutTime'),
         nga.field('autoCheckoutCost','number'),
-        nga.field('parkingLotId','number'),
+        nga.field('parkingLotId','reference')
+            .targetEntity(parkingLots)
+            .targetField(nga.field('name'))
+            .perPage(1000)
+            .remoteComplete(true),
         nga.field('bookingSecurity'),
         nga.field('convenienceFee'),
         nga.field('bookingNotes'),
-        nga.field('plateNumberType'),
+        nga.field('plateNumberType','choice')
+            .choices(
+                plate_number_type
+            ),
         nga.field('mobileRequired'),
         nga.field('valetName'),
         nga.field('lastCheckinUpdateTime'),
@@ -347,8 +420,15 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('day'),
         nga.field('startMinutesOfDay','number'),
         nga.field('endMinutesOfDay','number'),
-        nga.field('parkingSubLotId','number'),
-        nga.field('type')
+        nga.field('parkingSubLotId','reference')
+            .targetEntity(parkingSubLots)
+            .targetField(nga.field('id'))
+            .perPage(1000)
+            .remoteComplete(true),
+        nga.field('type','choice')
+            .choices(
+                pricing_slot_type
+            )
     ]);
     // use the same fields for the editionView as for the creationView
     pricingSlots.editionView().fields([pricingSlots.creationView().fields(),
@@ -392,7 +472,11 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('priceStructure'),
         nga.field('cost','number'),
         nga.field('duration','number'),
-        nga.field('pricingId','number'),
+        nga.field('pricingId','reference')
+            .targetEntity(pricingSlots)
+            .targetField(nga.field('id'))
+            .perPage(1000)
+            .remoteComplete(true),
         nga.field('sequenceNumber','number')
     ]);
     // use the same fields for the editionView as for the creationView
@@ -485,12 +569,20 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .choices(
                 event_type
             ),
-        nga.field('parkingSubLotId'),
+        nga.field('parkingSubLotId','reference')
+            .targetEntity(parkingSubLots)
+            .targetField(nga.field('id'))
+            .perPage(1000)
+            .remoteComplete(true),
         nga.field('styleMasterTitle','choice')
             .choices(
                 style_masters
             ),
-        nga.field('parkingPassMasterId')
+        nga.field('parkingPassMasterId','reference')
+            .targetEntity(parkingPassMasters)
+            .targetField(nga.field('name'))
+            .perPage(1000)
+            .remoteComplete(true)
     ]);
     // use the same fields for the editionView as for the creationView
     receiptContents.editionView().fields(receiptContents.creationView().fields());
@@ -499,6 +591,27 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     receiptContents.readOnly();
 
 
+    //vehicleMasters
+
+    vehicleMasters.listView().fields([
+        // use the name as the link to the detail view - the edition view
+        nga.field('id').isDetailLink(true),
+        nga.field('vehicleType'),
+
+    ]).filters([
+            nga.field('id'),
+            nga.field('vehicleType')
+        ]);
+
+    vehicleMasters.showView().fields([
+        // use the name as the link to the detail view - the edition view
+        nga.field('id').isDetailLink(true),
+        nga.field('vehicleType'),
+        nga.field('make'),
+        nga.field('model'),
+        nga.field('year')
+
+    ])
 
     nga.configure(admin);
 
