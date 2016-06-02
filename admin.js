@@ -125,7 +125,6 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     ])
         .listActions(['edit'])
         .filters([
-            nga.field('id'),
             nga.field('name'),
             nga.field('city')
         ]);
@@ -133,12 +132,28 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
 
     companies.creationView().fields([
-        nga.field('name'),
-        nga.field('address'),
-        nga.field('city'),
+        nga.field('name')
+            .validation({
+                required: true
+            }),
+        nga.field('address')
+            .validation({
+                required: true
+            }),
+        nga.field('city')
+            .validation({
+                required: true
+            }),
         nga.field('email','email'),
-        nga.field('contactNumber','number'),
-        nga.field('website'),
+        nga.field('contactNumber')
+            .validation({
+                minlength:10,
+                maxlength:10
+            }),
+        nga.field('website')
+            .validation({
+                validator: function(value) {if (value.indexOf('http://') !== 0) throw new Error ('Invalid url in website');}
+            }),
         nga.field('contractor')
     ]);
     // use the same fields for the editionView as for the creationView
@@ -178,26 +193,36 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     ])
         .listActions(['edit'])
         .filters([
-            nga.field('id'),
             nga.field('name'),
             nga.field('city'),
             nga.field('landmark'),
-            nga.field('companyId'),
             nga.field('category')
         ]);
 
 
 
     parkings.creationView().fields([
-        nga.field('name'),
-        nga.field('address'),
-        nga.field('city'),
+        nga.field('name')
+            .validation({
+                required: true
+            }),
+        nga.field('address')
+            .validation({
+                required: true
+            }),
+        nga.field('city')
+            .validation({
+                required: true
+            }),
         nga.field('contactNumber','number'),
         nga.field('companyId','reference')
             .targetEntity(companies)
             .targetField(nga.field('name'))
             .perPage(500)
-            .remoteComplete(true),
+            .remoteComplete(true)
+            .validation({
+                required: true
+            }),
         nga.field('category','choice')
             .choices(
                 parking_category
@@ -253,7 +278,6 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     ])
         .listActions(['edit'])
         .filters([
-            nga.field('id'),
             nga.field('name'),
             nga.field('parkingId'),
             nga.field('parkingType'),
@@ -262,9 +286,18 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         ]);
 
     parkingLots.creationView().fields([
-        nga.field('name'),
-        nga.field('openTime'),
-        nga.field('closeTime'),
+        nga.field('name')
+            .validation({
+                required: true
+            }),
+        nga.field('openTime','datetime')
+            .validation({
+                required: true
+            }),
+        nga.field('closeTime','datetime')
+            .validation({
+                required: true
+            }),
         nga.field('parkingId','reference')
             .targetEntity(parkings)
             .targetField(nga.field('name'))
@@ -346,10 +379,16 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .targetEntity(vehicleMasters)
             .targetField(nga.field('vehicleType'))
             .perPage(1000)
-            .remoteComplete(true),
-        nga.field('capacity','number'),
+            .remoteComplete(true)
+            .validation({
+                required: true
+            }),
+        nga.field('capacity','number')
+            .validation({
+                required: true
+            }),
         nga.field('taxiTime'),
-        nga.field('autoCheckoutTime'),
+        nga.field('autoCheckoutTime','datetime'),
         nga.field('autoCheckoutCost','number'),
         nga.field('parkingLotId','reference')
             .targetEntity(parkingLots)
@@ -363,8 +402,23 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .choices(
                 plate_number_type
             ),
-        nga.field('mobileRequired'),
-        nga.field('valetName'),
+        nga.field('mobileRequired','boolean')
+            .choices([
+                { value:"NA", label:"NA"},
+                { value:"OPTIONAL", label:"OPTIONAL"},
+            ])
+            .validation({
+                required: true
+            }),
+        nga.field('valetName','choice')
+            .choices([
+                { value:"NA", label:"NA"},
+                { value:"OPTIONAL", label:"OPTIONAL"},
+                { value:"MANDATORY", label:"MANDATORY"}
+            ])
+            .validation({
+                required: true
+            }),
         nga.field('lastCheckinUpdateTime'),
         nga.field('insidePhoto'),
         nga.field('lostTicketFee','number')
@@ -422,7 +476,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
         nga.field('endMinutesOfDay','number'),
         nga.field('parkingSubLotId','reference')
             .targetEntity(parkingSubLots)
-            .targetField(nga.field('id'))
+            .targetField([nga.field('type'),nga.field('parkingLotId')])
             .perPage(1000)
             .remoteComplete(true),
         nga.field('type','choice')
@@ -433,7 +487,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // use the same fields for the editionView as for the creationView
     pricingSlots.editionView().fields([pricingSlots.creationView().fields(),
         nga.field('priceGrids', 'referenced_list') // display list of related comments
-            .targetEntity(priceGrids)
+             .targetEntity(priceGrids)
             .targetReferenceField('pricingId')
             .targetFields([
                 nga.field('id').label('priceGrids.id'),
@@ -641,13 +695,24 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
     // use the custom query parameters function to format the API request correctly
     RestangularProvider.addFullRequestInterceptor(function (element, operation, what, url, headers, params) {
 
-        //console.log("element",element);
-        //console.log("what",what);
 
+        //adding the where key in the filter values
         if (params._filters) {
             for (var filter in params._filters) {
                 var index = Object.keys(params._filters)[0];
-                params['filter[where]['+index+']'] = params._filters[filter];
+                //checking if the filter is for the type number or string
+                //console.log(typeof(params._filters[filter]));
+                if(typeof(params._filters[filter])==='number')
+                {
+                    //the filter value is number so no autocompletion
+                    params['filter[where]['+index+']'] = params._filters[filter];
+                }
+                else
+                {
+                    //the filter value is string, so to achieve autocompletion using like with "%"
+                    params['filter[where]['+index+'][like]'] = "%"+params._filters[filter]+"%";
+                }
+
             }
             delete params._filters;
         }
