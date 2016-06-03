@@ -150,10 +150,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
                 minlength:10,
                 maxlength:10
             }),
-        nga.field('website')
-            .validation({
-                validator: function(value) {if (value.indexOf('http://') !== 0) throw new Error ('Invalid url in website');}
-            }),
+        nga.field('website'),
         nga.field('contractor')
     ]);
     // use the same fields for the editionView as for the creationView
@@ -290,11 +287,14 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .validation({
                 required: true
             }),
-        nga.field('openTime','datetime')
-            .validation({
-                required: true
+        nga.field('openTime')
+            .attributes({
+                placeholder:"00:00:00"
             }),
-        nga.field('closeTime','datetime')
+        nga.field('closeTime')
+            .attributes({
+                placeholder:"00:00:00"
+            })
             .validation({
                 required: true
             }),
@@ -319,12 +319,12 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
                 ticketing_system
             ),
         nga.field('extraNotes'),
-        nga.field('geoLocation.lat'),
-        nga.field('geoLocation.lng')
+        nga.field('geoLocation.lat','number'),
+        nga.field('geoLocation.lng','number')
     ]);
     // use the same fields for the editionView as for the creationView
     parkingLots.editionView().fields([parkingLots.creationView().fields(),
-        nga.field('parkingSubLots', 'referenced_list') // display list of related comments
+        nga.field('parkingSubLots', 'referenced_list')
             .targetEntity(parkingSubLots)
             .targetReferenceField('parkingLotId')
             .targetFields([
@@ -425,7 +425,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     ]);
     // use the same fields for the editionView as for the creationView
     parkingSubLots.editionView().fields([parkingSubLots.creationView().fields(),
-        nga.field('receiptContents', 'referenced_list') // display list of related comments
+        nga.field('receiptContents', 'referenced_list')
             .targetEntity(receiptContents)
             .targetReferenceField('parkingSubLotId')
             .targetFields([
@@ -435,7 +435,9 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             .sortField('id')
             .sortDir('DESC')
             .listActions(['edit']),
-        nga.field('pricingSlots', 'referenced_list') // display list of related comments
+        /*nga.field('').label('')
+            .template('<ma-create-button entity-name="receiptContent" size="sm" label="Create receiptContent" default-values="{ parkingSubLotId: entry.values.id }"></ma-create-button></span>'),*/
+        nga.field('pricingSlots', 'referenced_list')
             .targetEntity(pricingSlots)
             .targetReferenceField('parkingSubLotId')
             .targetFields([
@@ -445,6 +447,17 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
                 nga.field('endMinutesOfDay').label('pricingSlotSendMinutesOfDay')
             ])
             .listActions(['edit'])
+        /*nga.field('pricingSlots', 'embedded_list')
+            .targetEntity(pricingSlots)
+            .targetReferenceField('parkingSubLotId')
+            .targetFields([
+                nga.field('id').label('PricingSlotId'),
+                nga.field('day').label('PricingSlotDay'),
+                nga.field('startMinutesOfDay').label('pricingSlotsStartMinutesOfDay'),
+                nga.field('endMinutesOfDay').label('pricingSlotSendMinutesOfDay')
+            ])
+            .listActions(['edit'])*/
+
     ]);
 
 
@@ -486,7 +499,7 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     ]);
     // use the same fields for the editionView as for the creationView
     pricingSlots.editionView().fields([pricingSlots.creationView().fields(),
-        nga.field('priceGrids', 'referenced_list') // display list of related comments
+        nga.field('priceGrids', 'referenced_list')
              .targetEntity(priceGrids)
             .targetReferenceField('pricingId')
             .targetFields([
